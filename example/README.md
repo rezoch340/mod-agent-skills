@@ -1,6 +1,6 @@
 # 第三方模型调度示例
 
-这是可保留的小型示例项目，用来实测 Codex 版 `mod-dispatch`。`config_demo.py` 的初始实现故意保留缺陷；当前版本已由第三方模型提出补丁、Codex 应用并验证。
+用于演练 Codex 版 `mod-dispatch` 的小型示例项目。`config_demo.py` 最初带有缺陷，当前版本由第三方模型提出补丁、Codex 应用并通过验收测试。
 
 ## 任务
 
@@ -21,7 +21,7 @@ python3 -B -m unittest discover -s example -v
 
 ## 连接与调度
 
-本次连接文件由 `mod-add` 自动生成在技能包主目录 `../connection.json`（相对于本示例目录），填写 `base_url` 和 `api_key` 后保存。模型 ID 按中转站实际提供的值配置。该文件不作为模型附件。
+连接文件由 `mod-add` 生成在技能包根目录 `../connection.json`（相对于本示例目录），填写 `base_url` 和 `api_key` 后即可调度。模型 ID 按中转站实际提供的值配置。
 
 实测顺序为：`models` 核对连接和角色 → `read` 分析示例 → `brain` 确定修复方案 → `write` 生成补丁 → Codex 应用并运行测试 → `review` 审核实际修改与测试结果。
 
@@ -31,5 +31,3 @@ python3 -B -m unittest discover -s example -v
 - `read`（`deepseek-flash`）、`brain`（`gpt-6-luna`）、`write`（`deepseek-v4-pro`）和 `review`（`grok-4.7`）均通过真实 Chat Completions 请求返回完整结果。
 - 补丁应用前核对文件 SHA-256，只修改 `config_demo.py`。验收从 7 个测试方法中的 12 个失败项变为全部通过；Grok 审查通过，测试文件未修改。
 - 本次验证的是 Codex 的外部模型调度链。Grok CLI 原生客户端的 URL 拼接与调用需按 Grok 版 `mod-add` 单独验证，不能用上述结果代替。
-
-示例代码、说明和测试可以保留。请求和响应使用内存传递；需要临时文件时遵守工作区的 scratch 位置要求。没有完整连接信息时只进行本地验证，不伪装成真实模型调用成功。
