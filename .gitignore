@@ -1,0 +1,7 @@
+state.json
+**/state.json
+connection.json
+**/connection.json
+__pycache__/
+*.pyc
+.DS_Store

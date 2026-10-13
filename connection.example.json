@@ -1,0 +1,10 @@
+{
+  "base_url": "",
+  "api_key": "",
+  "models": {
+    "read": "deepseek-flash",
+    "write": "deepseek-v4-pro",
+    "brain": "gpt-6-luna",
+    "review": "grok-4.7"
+  }
+}
