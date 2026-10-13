@@ -13,7 +13,7 @@ license: MIT
 
 命令：`/mod-add`
 
-把中转站上的模型写进 `~/.grok/config.toml`，使 `/model` 能选到。给任何项目用，不绑定某一个模组。中转站地址和密钥保存在本技能自动生成的本地连接文件中；用户也可以直接在对话中提供，由代理写入文件。不要把真实密钥写进技能正文或提交到仓库，回复时不复述密钥。不要改 `[models].default`。
+把中转站上的模型写进 `~/.grok/config.toml`，使 `/model` 能选到。中转站地址和密钥保存在本技能自动生成的本地连接文件中；用户也可以直接在对话中提供，由代理写入文件。真实密钥只写入连接文件和 `~/.grok/config.toml`，回复时不复述密钥。只追加 `[model.*]` 条目，`[models].default` 保持不变。
 
 ## 初次询问
 
@@ -81,7 +81,7 @@ context_window = 1000000
 api_key = ""
 ```
 
-上面示例是对话模型，`context_window` 用 `1000000`；图像模型用 `32000`。`api_key` 填 connection.json 里的密钥，不要把说明文字或空字符串写入配置。示例中的 `api_backend` 仅适用于已确认使用 Chat Completions 的服务；实际值按当前 CLI 支持与服务协议填写。
+上面示例是对话模型，`context_window` 用 `1000000`；图像模型用 `32000`。`api_key` 填 connection.json 中的实际密钥。示例中的 `api_backend` 仅适用于已确认使用 Chat Completions 的服务；实际值按当前 CLI 支持与服务协议填写。
 
 4. 跑 `grok inspect`、`grok models`，核对配置解析和完整模型 ID。用户要求验证调用时，再通过当前 Grok CLI 做一次最小文本请求，核验最终端点与协议；未调用时标记推理未验证。Codex helper 成功不代表 Grok 客户端调用成功。
 5. 报告规范地址、实际 `api_backend` 和验证结果；告诉用户当前会话的 `/model` 是启动时读的，新开一个 Grok 会话再选。
