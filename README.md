@@ -180,7 +180,14 @@ cp -R codex/mod-add codex/mod-dispatch ~/.agents/skills/
 
 Grok 版 `mod-add` 首次运行时会询问是否把中转站上尚未加入 `/model` 的模型注册进 `~/.grok/config.toml`。注册范围包括对话模型和图像模型；ID 中含 `video` 的模型只在传入 `--video` 时注册。你的选择记录在 `~/.grok/skills/mod-add/state.json`，之后不再重复询问。
 
-每个模型追加为一个表，只补充配置中尚不存在的 ID，不修改 `[models].default`：
+每个模型追加为一个表，不修改 `[models].default`。`/model` 中已有的 ID 不会被覆盖：写入前，技能会运行 `grok models` 获取现有列表，包括 Grok 内置模型和 `config.toml` 中已有的条目，并跳过所有同名 ID。
+
+这一步是必要的，因为 `config.toml` 中与内置模型同名的表会顶替内置模型。例如中转站也提供 `grok-4.7` 时，写入 `[model."grok-4.7"]` 会让 Grok 自带的 `grok-4.7` 改走中转站。遇到同名 ID 时，技能会列出冲突并提供两种做法：
+
+- **并存**：用别名作为表名，例如 `[model."relay-grok-4.7"]`，`model` 字段仍填 `grok-4.7`。
+- **覆盖**：你逐个明确同意后才替换。替换前会先展示原条目的地址和名称。
+
+条目格式如下：
 
 ```toml
 [model."example-model-1.5"]
