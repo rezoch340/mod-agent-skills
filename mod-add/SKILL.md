@@ -27,7 +27,7 @@ license: MIT
 - 拒绝：写入 `{"asked":true,"add_models":false}`。以后不再问，也不自动加。
 - 用户之后说「添加模型」或运行本命令并要求添加：把 `add_models` 改成 `true` 再添加。
 
-`add_models` 已是 `true` 时不再询问。只补配置里还没有的 id。参数含 `--video` 时才加入 id 里带 `video` 的模型。
+`add_models` 已是 `true` 时不再询问。只补 `/model` 里还没有的 id，已有 id 不覆盖，见「写入」。参数含 `--video` 时才加入 id 里带 `video` 的模型。
 
 ## 连接配置（自动生成）
 
@@ -68,7 +68,12 @@ license: MIT
 
 1. 按前两节准备连接、识别端点及当前 CLI 的协议能力。
 2. 使用已验证的模型列表；尚未获取时以规范连接请求 `GET {base_url}/models`。不重复已经成功的探测请求。
-3. 每个新 id 追加一段。**id 含 `.` 时表名必须加引号。** 不加引号时 TOML 会把名字拆开，`/model` 里只剩半截，`grok inspect` 会出现 `unknown field`。
+3. 写入前跑 `grok models`，取 `/model` 现有的完整 id 列表，包括 Grok 内置模型和 `config.toml` 已有的 `[model.*]` 条目。`grok models` 失败时报告原因并停止写入，不只凭 `config.toml` 判断。服务列表里与之同名的 id 一律跳过，不写入、不改原条目。同名表会顶替内置模型：`[model."grok-4.7"]` 会让 `grok-4.7` 改走中转站和连接文件里的密钥。
+4. 有同名 id 时主动提醒用户，列出每个 id 的来源（内置或已有条目）和覆盖后果，给出两种做法：
+   - 并存：表名换成未占用的别名，如 `[model."relay-grok-4.7"]`，`model` 仍填服务的 id `grok-4.7`。别名由用户确认。
+   - 覆盖：只在用户逐个明确同意后替换。覆盖已有条目前展示原条目的 `base_url`、`api_backend` 和 `name`，不展示密钥。
+   已有条目的 `base_url` 或 `api_key` 与当前连接文件不一致时，同样只提醒，不自动更新。
+5. 每个新 id 追加一段。**id 含 `.` 时表名必须加引号。** 不加引号时 TOML 会把名字拆开，`/model` 里只剩半截，`grok inspect` 会出现 `unknown field`。
 
 ```toml
 [model."example-model-1.5"]
@@ -83,5 +88,5 @@ api_key = ""
 
 上面示例是对话模型，`context_window` 用 `1000000`；图像模型用 `32000`。`api_key` 填 connection.json 中的实际密钥。示例中的 `api_backend` 仅适用于已确认使用 Chat Completions 的服务；实际值按当前 CLI 支持与服务协议填写。
 
-4. 跑 `grok inspect`、`grok models`，核对配置解析和完整模型 ID。用户要求验证调用时，再通过当前 Grok CLI 做一次最小文本请求，核验最终端点与协议；未调用时标记推理未验证。Codex helper 成功不代表 Grok 客户端调用成功。
-5. 报告规范地址、实际 `api_backend` 和验证结果；告诉用户当前会话的 `/model` 是启动时读的，新开一个 Grok 会话再选。
+6. 跑 `grok inspect`、`grok models`，核对配置解析和完整模型 ID。对照第 3 步的列表，确认只多出本次新增的 id；被同名表顶替的内置 id 仍会出现在列表里，因此防止覆盖靠第 3 步的检查。用户要求验证调用时，再通过当前 Grok CLI 做一次最小文本请求，核验最终端点与协议；未调用时标记推理未验证。Codex helper 成功不代表 Grok 客户端调用成功。
+7. 报告规范地址、实际 `api_backend`、新增的 id、因同名跳过的 id 和验证结果；告诉用户当前会话的 `/model` 是启动时读的，新开一个 Grok 会话再选。
